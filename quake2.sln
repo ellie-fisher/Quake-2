@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37614.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quake2", "quake2.vcxproj", "{77A50AAE-5E57-4A1B-B90D-A5796D67D8FB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game.vcxproj", "{FFDAEB54-119F-4253-8C3E-E5DB40B4187C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ref_gl", "ref_gl.vcxproj", "{FF55E575-5D5B-46D8-9F8B-F6EDBEE08984}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{77A50AAE-5E57-4A1B-B90D-A5796D67D8FB}.Debug|x64.ActiveCfg = Debug|x64
+		{77A50AAE-5E57-4A1B-B90D-A5796D67D8FB}.Debug|x64.Build.0 = Debug|x64
+		{77A50AAE-5E57-4A1B-B90D-A5796D67D8FB}.Release|x64.ActiveCfg = Release|x64
+		{77A50AAE-5E57-4A1B-B90D-A5796D67D8FB}.Release|x64.Build.0 = Release|x64
+		{FFDAEB54-119F-4253-8C3E-E5DB40B4187C}.Debug|x64.ActiveCfg = Debug|x64
+		{FFDAEB54-119F-4253-8C3E-E5DB40B4187C}.Debug|x64.Build.0 = Debug|x64
+		{FFDAEB54-119F-4253-8C3E-E5DB40B4187C}.Release|x64.ActiveCfg = Release|x64
+		{FFDAEB54-119F-4253-8C3E-E5DB40B4187C}.Release|x64.Build.0 = Release|x64
+		{FF55E575-5D5B-46D8-9F8B-F6EDBEE08984}.Debug|x64.ActiveCfg = Debug|x64
+		{FF55E575-5D5B-46D8-9F8B-F6EDBEE08984}.Debug|x64.Build.0 = Debug|x64
+		{FF55E575-5D5B-46D8-9F8B-F6EDBEE08984}.Release|x64.ActiveCfg = Release|x64
+		{FF55E575-5D5B-46D8-9F8B-F6EDBEE08984}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {35B018AE-1A4A-4E2D-A150-0BE75C56DFF7}
+	EndGlobalSection
+EndGlobal
