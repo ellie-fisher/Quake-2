@@ -614,8 +614,6 @@ qboolean VID_LoadRefresh( char *name )
 	{
 		if(!strcmp (vid_ref->string, "gl"))
 			vidref_val = VIDREF_GL;
-		else if(!strcmp(vid_ref->string, "soft"))
-			vidref_val = VIDREF_SOFT;
 	}
 //PGM
 //======
@@ -672,9 +670,9 @@ void VID_CheckChanges (void)
 
 		if ( !VID_LoadRefresh( name ) )
 		{
-			if ( strcmp (vid_ref->string, "soft") == 0 )
-				Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
-			Cvar_Set( "vid_ref", "soft" );
+			if ( strcmp (vid_ref->string, "gl") == 0 )
+				Com_Error (ERR_FATAL, "Couldn't load a renderer!");
+			Cvar_Set( "vid_ref", "gl" );
 
 			/*
 			** drop the console if we fail to load a refresh
@@ -708,7 +706,7 @@ VID_Init
 void VID_Init (void)
 {
 	/* Create the video variables so we know how to start the graphics drivers */
-	vid_ref = Cvar_Get ("vid_ref", "soft", CVAR_ARCHIVE);
+	vid_ref = Cvar_Get ("vid_ref", "gl", CVAR_ARCHIVE);
 	vid_xpos = Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
 	vid_ypos = Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
 	vid_fullscreen = Cvar_Get ("vid_fullscreen", "0", CVAR_ARCHIVE);
@@ -718,23 +716,6 @@ void VID_Init (void)
 	/* Add some console commands that we want to handle */
 	Cmd_AddCommand ("vid_restart", VID_Restart_f);
 	Cmd_AddCommand ("vid_front", VID_Front_f);
-
-	/*
-	** this is a gross hack but necessary to clamp the mode for 3Dfx
-	*/
-#if 0
-	{
-		cvar_t *gl_driver = Cvar_Get( "gl_driver", "opengl32", 0 );
-		cvar_t *gl_mode = Cvar_Get( "gl_mode", "3", 0 );
-
-		if ( stricmp( gl_driver->string, "3dfxgl" ) == 0 )
-		{
-			Cvar_SetValue( "gl_mode", 3 );
-			viddef.width  = 640;
-			viddef.height = 480;
-		}
-	}
-#endif
 
 	/* Disable the 3Dfx splash screen */
 	_putenv("FX_GLIDE_NO_SPLASH=0");

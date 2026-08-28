@@ -20,11 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client/client.h"
 #include "../client/qmenu.h"
 
-#define REF_SOFT	0
-#define REF_OPENGL	1
-#define REF_3DFX	2
-#define REF_POWERVR	3
-#define REF_VERITE	4
+#define REF_OPENGL	0
 
 extern cvar_t *vid_ref;
 extern cvar_t *vid_fullscreen;
@@ -37,7 +33,6 @@ static cvar_t *gl_picmip;
 static cvar_t *gl_ext_palettedtexture;
 static cvar_t *gl_finish;
 
-static cvar_t *sw_mode;
 static cvar_t *sw_stipplealpha;
 
 extern void M_ForceMenuOff( void );
@@ -49,41 +44,29 @@ MENU INTERACTION
 
 ====================================================================
 */
-#define SOFTWARE_MENU 0
-#define OPENGL_MENU   1
+#define OPENGL_MENU   0
 
-static menuframework_s  s_software_menu;
 static menuframework_s	s_opengl_menu;
 static menuframework_s *s_current_menu;
 static int				s_current_menu_index;
 
-static menulist_s		s_mode_list[2];
-static menulist_s		s_ref_list[2];
+static menulist_s		s_mode_list[1];
+static menulist_s		s_ref_list[1];
 static menuslider_s		s_tq_slider;
-static menuslider_s		s_screensize_slider[2];
-static menuslider_s		s_brightness_slider[2];
-static menulist_s  		s_fs_box[2];
+static menuslider_s		s_screensize_slider[1];
+static menuslider_s		s_brightness_slider[1];
+static menulist_s  		s_fs_box[1];
 static menulist_s  		s_stipple_box;
 static menulist_s  		s_paletted_texture_box;
 static menulist_s  		s_finish_box;
-static menuaction_s		s_cancel_action[2];
-static menuaction_s		s_defaults_action[2];
+static menuaction_s		s_cancel_action[1];
+static menuaction_s		s_defaults_action[1];
 
 static void DriverCallback( void *unused )
 {
 	s_ref_list[!s_current_menu_index].curvalue = s_ref_list[s_current_menu_index].curvalue;
-
-	if ( s_ref_list[s_current_menu_index].curvalue == 0 )
-	{
-		s_current_menu = &s_software_menu;
-		s_current_menu_index = 0;
-	}
-	else
-	{
-		s_current_menu = &s_opengl_menu;
-		s_current_menu_index = 1;
-	}
-
+	s_current_menu = &s_opengl_menu;
+	s_current_menu_index = 0;
 }
 
 static void ScreenSizeCallback( void *s )
@@ -97,17 +80,7 @@ static void BrightnessCallback( void *s )
 {
 	menuslider_s *slider = ( menuslider_s * ) s;
 
-	if ( s_current_menu_index == SOFTWARE_MENU )
-		s_brightness_slider[1].curvalue = s_brightness_slider[0].curvalue;
-	else
-		s_brightness_slider[0].curvalue = s_brightness_slider[1].curvalue;
-
-	if ( _stricmp( vid_ref->string, "soft" ) == 0 )
-	{
-		float gamma = ( 0.8 - ( slider->curvalue/10.0 - 0.5 ) ) + 0.5;
-
-		Cvar_SetValue( "vid_gamma", gamma );
-	}
+	s_brightness_slider[0].curvalue = s_brightness_slider[0].curvalue;
 }
 
 static void ResetDefaults( void *unused )
@@ -137,29 +110,13 @@ static void ApplyChanges( void *unused )
 	Cvar_SetValue( "vid_fullscreen", s_fs_box[s_current_menu_index].curvalue );
 	Cvar_SetValue( "gl_ext_palettedtexture", s_paletted_texture_box.curvalue );
 	Cvar_SetValue( "gl_finish", s_finish_box.curvalue );
-	Cvar_SetValue( "sw_mode", s_mode_list[SOFTWARE_MENU].curvalue );
 	Cvar_SetValue( "gl_mode", s_mode_list[OPENGL_MENU].curvalue );
 
 	switch ( s_ref_list[s_current_menu_index].curvalue )
 	{
-	case REF_SOFT:
-		Cvar_Set( "vid_ref", "soft" );
-		break;
 	case REF_OPENGL:
 		Cvar_Set( "vid_ref", "gl" );
 		Cvar_Set( "gl_driver", "opengl32" );
-		break;
-	case REF_3DFX:
-		Cvar_Set( "vid_ref", "gl" );
-		Cvar_Set( "gl_driver", "3dfxgl" );
-		break;
-	case REF_POWERVR:
-		Cvar_Set( "vid_ref", "gl" );
-		Cvar_Set( "gl_driver", "pvrgl" );
-		break;
-	case REF_VERITE:
-		Cvar_Set( "vid_ref", "gl" );
-		Cvar_Set( "gl_driver", "veritegl" );
 		break;
 	}
 
@@ -172,21 +129,6 @@ static void ApplyChanges( void *unused )
 		if ( vid_gamma->modified )
 		{
 			vid_ref->modified = true;
-			if ( _stricmp( gl_driver->string, "3dfxgl" ) == 0 )
-			{
-				char envbuffer[1024];
-				float g;
-
-				vid_ref->modified = true;
-
-				g = 2.00 * ( 0.8 - ( vid_gamma->value - 0.5 ) ) + 1.0F;
-				Com_sprintf( envbuffer, sizeof(envbuffer), "SSTV2_GAMMA=%f", g );
-				_putenv( envbuffer );
-				Com_sprintf( envbuffer, sizeof(envbuffer), "SST_GAMMA=%f", g );
-				_putenv( envbuffer );
-
-				vid_gamma->modified = false;
-			}
 		}
 
 		if ( gl_driver->modified )
@@ -224,11 +166,7 @@ void VID_MenuInit( void )
 	};
 	static const char *refs[] =
 	{
-		"[software      ]",
-		"[default OpenGL]",
-		"[3Dfx OpenGL   ]",
-		"[PowerVR OpenGL]",
-//		"[Rendition OpenGL]",
+		"[OpenGL v1.1   ]",
 		0
 	};
 	static const char *yesno_names[] =
@@ -245,8 +183,6 @@ void VID_MenuInit( void )
 		gl_picmip = Cvar_Get( "gl_picmip", "0", 0 );
 	if ( !gl_mode )
 		gl_mode = Cvar_Get( "gl_mode", "3", 0 );
-	if ( !sw_mode )
-		sw_mode = Cvar_Get( "sw_mode", "0", 0 );
 	if ( !gl_ext_palettedtexture )
 		gl_ext_palettedtexture = Cvar_Get( "gl_ext_palettedtexture", "1", CVAR_ARCHIVE );
 	if ( !gl_finish )
@@ -255,40 +191,23 @@ void VID_MenuInit( void )
 	if ( !sw_stipplealpha )
 		sw_stipplealpha = Cvar_Get( "sw_stipplealpha", "0", CVAR_ARCHIVE );
 
-	s_mode_list[SOFTWARE_MENU].curvalue = sw_mode->value;
 	s_mode_list[OPENGL_MENU].curvalue = gl_mode->value;
 
 	if ( !scr_viewsize )
 		scr_viewsize = Cvar_Get ("viewsize", "100", CVAR_ARCHIVE);
 
-	s_screensize_slider[SOFTWARE_MENU].curvalue = scr_viewsize->value/10;
 	s_screensize_slider[OPENGL_MENU].curvalue = scr_viewsize->value/10;
 
-	if ( strcmp( vid_ref->string, "soft" ) == 0 )
-	{
-		s_current_menu_index = SOFTWARE_MENU;
-		s_ref_list[0].curvalue = s_ref_list[1].curvalue = REF_SOFT;
-	}
-	else if ( strcmp( vid_ref->string, "gl" ) == 0 )
+	if ( strcmp( vid_ref->string, "gl" ) == 0 )
 	{
 		s_current_menu_index = OPENGL_MENU;
-		if ( strcmp( gl_driver->string, "3dfxgl" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_3DFX;
-		else if ( strcmp( gl_driver->string, "pvrgl" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_POWERVR;
-		else if ( strcmp( gl_driver->string, "opengl32" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_OPENGL;
-		else
-//			s_ref_list[s_current_menu_index].curvalue = REF_VERITE;
-			s_ref_list[s_current_menu_index].curvalue = REF_OPENGL;
+		s_ref_list[s_current_menu_index].curvalue = REF_OPENGL;
 	}
 
-	s_software_menu.x = viddef.width * 0.50;
-	s_software_menu.nitems = 0;
 	s_opengl_menu.x = viddef.width * 0.50;
 	s_opengl_menu.nitems = 0;
 
-	for ( i = 0; i < 2; i++ )
+	for ( i = 0; i < 1; i++ )
 	{
 		s_ref_list[i].generic.type = MTYPE_SPINCONTROL;
 		s_ref_list[i].generic.name = "driver";
@@ -369,13 +288,6 @@ void VID_MenuInit( void )
 	s_finish_box.curvalue = gl_finish->value;
 	s_finish_box.itemnames = yesno_names;
 
-	Menu_AddItem( &s_software_menu, ( void * ) &s_ref_list[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_mode_list[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_screensize_slider[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_brightness_slider[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_fs_box[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_stipple_box );
-
 	Menu_AddItem( &s_opengl_menu, ( void * ) &s_ref_list[OPENGL_MENU] );
 	Menu_AddItem( &s_opengl_menu, ( void * ) &s_mode_list[OPENGL_MENU] );
 	Menu_AddItem( &s_opengl_menu, ( void * ) &s_screensize_slider[OPENGL_MENU] );
@@ -385,15 +297,11 @@ void VID_MenuInit( void )
 	Menu_AddItem( &s_opengl_menu, ( void * ) &s_paletted_texture_box );
 	Menu_AddItem( &s_opengl_menu, ( void * ) &s_finish_box );
 
-	Menu_AddItem( &s_software_menu, ( void * ) &s_defaults_action[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_cancel_action[SOFTWARE_MENU] );
 	Menu_AddItem( &s_opengl_menu, ( void * ) &s_defaults_action[OPENGL_MENU] );
 	Menu_AddItem( &s_opengl_menu, ( void * ) &s_cancel_action[OPENGL_MENU] );
 
-	Menu_Center( &s_software_menu );
 	Menu_Center( &s_opengl_menu );
 	s_opengl_menu.x -= 8;
-	s_software_menu.x -= 8;
 }
 
 /*
@@ -406,8 +314,6 @@ void VID_MenuDraw (void)
 	int w, h;
 
 	if ( s_current_menu_index == 0 )
-		s_current_menu = &s_software_menu;
-	else
 		s_current_menu = &s_opengl_menu;
 
 	/*
