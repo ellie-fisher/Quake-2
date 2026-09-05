@@ -139,9 +139,9 @@ void Sys_Mkdir (char *path)
 
 //============================================
 
-char	findbase[MAX_OSPATH];
-char	findpath[MAX_OSPATH];
-int		findhandle = -1;
+char     findbase[MAX_OSPATH];
+char     findpath[MAX_OSPATH];
+intptr_t findhandle = -1;
 
 static qboolean CompareAttributes( unsigned found, unsigned musthave, unsigned canthave )
 {

@@ -543,7 +543,7 @@ void R_DrawAliasModel (entity_t *e)
 	//
 	// PMM - rewrote, reordered to handle new shells & mixing
 	//
-	if ( currententity->flags & ( RF_SHELL_HALF_DAM | RF_SHELL_GREEN | RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_DOUBLE ) )
+	if (currententity->flags & ( RF_SHELL_HALF_DAM | RF_SHELL_GREEN | RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_DOUBLE ) )
 	{
 		// PMM -special case for godmode
 		if ( (currententity->flags & RF_SHELL_RED) &&

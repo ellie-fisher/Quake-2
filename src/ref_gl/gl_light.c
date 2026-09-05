@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -189,7 +189,15 @@ vec3_t			pointcolor;
 cplane_t		*lightplane;		// used as shadow plane
 vec3_t			lightspot;
 
-int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
+typedef struct lightpoint_s
+{
+	vec3_t color;
+	msurface_t* surf;
+	byte* lightmap;
+	float distance;
+} lightpoint_t;
+
+int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end, lightpoint_t* out_lp)
 {
 	float		front, back, frac;
 	int			side;
@@ -203,6 +211,8 @@ int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 	int			maps;
 	int			r;
 
+	out_lp->distance = 1e30f;
+
 	if (node->contents != -1)
 		return -1;		// didn't hit anything
 	
@@ -215,7 +225,7 @@ int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 	side = front < 0;
 	
 	if ( (back < 0) == side)
-		return RecursiveLightPoint (node->children[side], start, end);
+		return RecursiveLightPoint (node->children[side], start, end, out_lp);
 	
 	frac = front / (front-back);
 	mid[0] = start[0] + (end[0] - start[0])*frac;
@@ -223,7 +233,7 @@ int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 	mid[2] = start[2] + (end[2] - start[2])*frac;
 	
 // go down front side	
-	r = RecursiveLightPoint (node->children[side], start, mid);
+	r = RecursiveLightPoint (node->children[side], start, mid, out_lp);
 	if (r >= 0)
 		return r;		// hit something
 		
@@ -261,33 +271,21 @@ int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 		ds >>= 4;
 		dt >>= 4;
 
-		lightmap = surf->samples;
-		VectorCopy (vec3_origin, pointcolor);
-		if (lightmap)
-		{
-			vec3_t scale;
+		out_lp->surf = surf;
+		out_lp->lightmap = surf->samples + (3*(dt * ((surf->extents[0]>>4)+1) + ds));
+		VectorCopy (vec3_origin, out_lp->color);
 
-			lightmap += 3*(dt * ((surf->extents[0]>>4)+1) + ds);
+		float* pn = surf->plane->normal;
+		float pd = surf->plane->dist;
+		float pp[] = { pn[0] * pd, pn[1] * pd, pn[2] * pd };
 
-			for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
-					maps++)
-			{
-				for (i=0 ; i<3 ; i++)
-					scale[i] = gl_modulate->value*r_newrefdef.lightstyles[surf->styles[maps]].rgb[i];
+		out_lp->distance = fabsf(DotProduct(pp, start));
 
-				pointcolor[0] += lightmap[0] * scale[0] * (1.0/255);
-				pointcolor[1] += lightmap[1] * scale[1] * (1.0/255);
-				pointcolor[2] += lightmap[2] * scale[2] * (1.0/255);
-				lightmap += 3*((surf->extents[0]>>4)+1) *
-						((surf->extents[1]>>4)+1);
-			}
-		}
-		
 		return 1;
 	}
 
 // go down back side
-	return RecursiveLightPoint (node->children[!side], mid, end);
+	return RecursiveLightPoint (node->children[!side], mid, end, out_lp);
 }
 
 /*
@@ -298,7 +296,6 @@ R_LightPoint
 void R_LightPoint (vec3_t p, vec3_t color)
 {
 	vec3_t		end;
-	float		r;
 	int			lnum;
 	dlight_t	*dl;
 	float		light;
@@ -313,17 +310,46 @@ void R_LightPoint (vec3_t p, vec3_t color)
 	
 	end[0] = p[0];
 	end[1] = p[1];
+	end[2] = p[2] + 2048;
+	
+	lightpoint_t lpt = { 0 };
+	lightpoint_t lpb = { 0 };
+
+	int rt = RecursiveLightPoint (r_worldmodel->nodes, p, end, &lpt);
 	end[2] = p[2] - 2048;
-	
-	r = RecursiveLightPoint (r_worldmodel->nodes, p, end);
-	
-	if (r == -1)
+	int rb = RecursiveLightPoint (r_worldmodel->nodes, p, end, &lpb);
+
+	if (rt == -1 && rb == -1)
 	{
 		VectorCopy (vec3_origin, color);
 	}
 	else
 	{
-		VectorCopy (pointcolor, color);
+		lightpoint_t* lightpoint = NULL;
+
+		if ((rb == -1 && rt != -1) || lpt.distance < lpb.distance)
+		{
+			lightpoint = &lpt;
+		}
+		else
+		{
+			lightpoint = &lpb;
+		}
+
+		vec3_t scale;
+
+		for (int maps = 0; maps < MAXLIGHTMAPS && lightpoint->surf->styles[maps] != 255; maps++)
+		{
+			for (int i=0 ; i<3 ; i++)
+				scale[i] = gl_modulate->value*r_newrefdef.lightstyles[lightpoint->surf->styles[maps]].rgb[i];
+
+			lightpoint->color[0] += lightpoint->lightmap[0] * scale[0] * (1.0/255);
+			lightpoint->color[1] += lightpoint->lightmap[1] * scale[1] * (1.0/255);
+			lightpoint->color[2] += lightpoint->lightmap[2] * scale[2] * (1.0/255);
+			lightpoint->lightmap += 3*((lightpoint->surf->extents[0]>>4)+1) * ((lightpoint->surf->extents[1]>>4)+1);
+		}
+
+		VectorCopy (lightpoint->color, color);
 	}
 
 	//
