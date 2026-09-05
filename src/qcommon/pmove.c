@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -740,7 +740,7 @@ void PM_CatagorizePosition (void)
 	}
 
 //
-// get waterlevel, accounting for ducking
+// get waterlevel, accounting for ducking and airpockets
 //
 	pm->waterlevel = 0;
 	pm->watertype = 0;
@@ -751,22 +751,32 @@ void PM_CatagorizePosition (void)
 	point[2] = pml.origin[2] + pm->mins[2] + 1;	
 	cont = pm->pointcontents (point);
 
+	int air_level = 0;
+
 	if (cont & MASK_WATER)
 	{
+		air_level += !!(cont & MASK_AIRPOCKET);
+
 		pm->watertype = cont;
 		pm->waterlevel = 1;
 		point[2] = pml.origin[2] + pm->mins[2] + sample1;
 		cont = pm->pointcontents (point);
 		if (cont & MASK_WATER)
 		{
+			air_level += !!(cont & MASK_AIRPOCKET);
+
 			pm->waterlevel = 2;
 			point[2] = pml.origin[2] + pm->mins[2] + sample2;
 			cont = pm->pointcontents (point);
 			if (cont & MASK_WATER)
+			{
+				air_level += !!(cont & MASK_AIRPOCKET);
 				pm->waterlevel = 3;
+			}
 		}
 	}
 
+	pm->waterlevel -= air_level;
 }
 
 
@@ -804,8 +814,6 @@ void PM_CheckJump (void)
 
 		if (pm->watertype == CONTENTS_WATER)
 			pml.velocity[2] = 100;
-		else if (pm->watertype == CONTENTS_SLIME)
-			pml.velocity[2] = 80;
 		else
 			pml.velocity[2] = 50;
 		return;

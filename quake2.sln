@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.14.37614.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quake2", "quake2.vcxproj", "{77A50AAE-5E57-4A1B-B90D-A5796D67D8FB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FF55E575-5D5B-46D8-9F8B-F6EDBEE08984} = {FF55E575-5D5B-46D8-9F8B-F6EDBEE08984}
+		{FFDAEB54-119F-4253-8C3E-E5DB40B4187C} = {FFDAEB54-119F-4253-8C3E-E5DB40B4187C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game.vcxproj", "{FFDAEB54-119F-4253-8C3E-E5DB40B4187C}"
 EndProject

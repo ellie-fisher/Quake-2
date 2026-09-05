@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+
 #include "g_local.h"
 
 
@@ -181,8 +182,6 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 					else
 						color = SPLASH_BLUE_WATER;
 				}
-				else if (tr.contents & CONTENTS_SLIME)
-					color = SPLASH_SLIME;
 				else if (tr.contents & CONTENTS_LAVA)
 					color = SPLASH_LAVA;
 				else
@@ -668,14 +667,14 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	VectorCopy (start, from);
 	ignore = self;
 	water = false;
-	mask = MASK_SHOT|CONTENTS_SLIME|CONTENTS_LAVA;
+	mask = MASK_SHOT|CONTENTS_LAVA;
 	while (ignore)
 	{
 		tr = gi.trace (from, NULL, NULL, end, ignore, mask);
 
-		if (tr.contents & (CONTENTS_SLIME|CONTENTS_LAVA))
+		if (tr.contents & (CONTENTS_LAVA))
 		{
-			mask &= ~(CONTENTS_SLIME|CONTENTS_LAVA);
+			mask &= ~(CONTENTS_LAVA);
 			water = true;
 		}
 		else

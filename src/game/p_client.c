@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -238,9 +238,6 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 			break;
 		case MOD_WATER:
 			message = "sank like a rock";
-			break;
-		case MOD_SLIME:
-			message = "melted";
 			break;
 		case MOD_LAVA:
 			message = "does a back flip into the lava";
@@ -1172,7 +1169,7 @@ void PutClientInServer (edict_t *ent)
 	ent->deadflag = DEAD_NO;
 	ent->air_finished = level.time + 12;
 	ent->clipmask = MASK_PLAYERSOLID;
-	ent->model = "players/male/tris.md2";
+	ent->model = "players/female/tris.md2";
 	ent->pain = player_pain;
 	ent->die = player_die;
 	ent->waterlevel = 0;

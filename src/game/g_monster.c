@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -186,12 +186,14 @@ void M_CatagorizePosition (edict_t *ent)
 	int			cont;
 
 //
-// get waterlevel
+// get waterlevel, accounting for airpockets
 //
 	point[0] = ent->s.origin[0];
 	point[1] = ent->s.origin[1];
 	point[2] = ent->s.origin[2] + ent->mins[2] + 1;	
 	cont = gi.pointcontents (point);
+
+	ent->waterlevel = 0;
 
 	if (!(cont & MASK_WATER))
 	{
@@ -200,18 +202,21 @@ void M_CatagorizePosition (edict_t *ent)
 		return;
 	}
 
-	ent->watertype = cont;
-	ent->waterlevel = 1;
+	ent->waterlevel += cont & MASK_AIRPOCKET ? 0 : 1;
+
 	point[2] += 26;
 	cont = gi.pointcontents (point);
 	if (!(cont & MASK_WATER))
 		return;
 
-	ent->waterlevel = 2;
+	ent->waterlevel += cont & MASK_AIRPOCKET ? -1 : 1;
 	point[2] += 22;
 	cont = gi.pointcontents (point);
+
 	if (cont & MASK_WATER)
-		ent->waterlevel = 3;
+	{
+		ent->waterlevel += cont & MASK_AIRPOCKET ? -1 : 1;
+	}
 }
 
 
@@ -277,15 +282,7 @@ void M_WorldEffects (edict_t *ent)
 			T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, 10*ent->waterlevel, 0, 0, MOD_LAVA);
 		}
 	}
-	if ((ent->watertype & CONTENTS_SLIME) && !(ent->flags & FL_IMMUNE_SLIME))
-	{
-		if (ent->damage_debounce_time < level.time)
-		{
-			ent->damage_debounce_time = level.time + 1;
-			T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, 4*ent->waterlevel, 0, 0, MOD_SLIME);
-		}
-	}
-	
+
 	if ( !(ent->flags & FL_INWATER) )
 	{	
 		if (!(ent->svflags & SVF_DEADMONSTER))
@@ -295,8 +292,6 @@ void M_WorldEffects (edict_t *ent)
 					gi.sound (ent, CHAN_BODY, gi.soundindex("player/lava1.wav"), 1, ATTN_NORM, 0);
 				else
 					gi.sound (ent, CHAN_BODY, gi.soundindex("player/lava2.wav"), 1, ATTN_NORM, 0);
-			else if (ent->watertype & CONTENTS_SLIME)
-				gi.sound (ent, CHAN_BODY, gi.soundindex("player/watr_in.wav"), 1, ATTN_NORM, 0);
 			else if (ent->watertype & CONTENTS_WATER)
 				gi.sound (ent, CHAN_BODY, gi.soundindex("player/watr_in.wav"), 1, ATTN_NORM, 0);
 		}

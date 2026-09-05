@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -326,9 +326,8 @@ Set "sounds" to one of the following:
   1) sparks
   2) blue water
   3) brown water
-  4) slime
-  5) lava
-  6) blood
+  4) lava
+  5) blood
 
 "count"	how many pixels in the splash
 "dmg"	if set, does a radius damage at this location when it splashes

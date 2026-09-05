@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -855,7 +855,7 @@ void SP_worldspawn (edict_t *ent)
 	else
 		gi.cvar_set("sv_gravity", st.gravity);
 
-	snd_fry = gi.soundindex ("player/fry.wav");	// standing in lava / slime
+	snd_fry = gi.soundindex ("player/fry.wav");	// standing in lava
 
 	PrecacheItem (FindItem ("Blaster"));
 

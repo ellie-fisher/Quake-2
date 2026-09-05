@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -334,7 +334,7 @@ typedef struct
 #define	CONTENTS_WINDOW			2		// translucent, but not watery
 #define	CONTENTS_AUX			4
 #define	CONTENTS_LAVA			8
-#define	CONTENTS_SLIME			16
+#define	CONTENTS_AIRPOCKET		16
 #define	CONTENTS_WATER			32
 #define	CONTENTS_MIST			64
 #define	LAST_VISIBLE_CONTENTS	64

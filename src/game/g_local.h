@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -60,7 +60,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	FL_INWATER				0x00000008
 #define	FL_GODMODE				0x00000010
 #define	FL_NOTARGET				0x00000020
-#define FL_IMMUNE_SLIME			0x00000040
 #define FL_IMMUNE_LAVA			0x00000080
 #define	FL_PARTIALGROUND		0x00000100	// not all corners are valid
 #define	FL_WATERJUMP			0x00000200	// player jumping out of water
@@ -482,7 +481,7 @@ extern	int	body_armor_index;
 #define MOD_HANDGRENADE		15
 #define MOD_HG_SPLASH		16
 #define MOD_WATER			17
-#define MOD_SLIME			18
+#define MOD_UNUSED			18
 #define MOD_LAVA			19
 #define MOD_CRUSH			20
 #define MOD_TELEFRAG		21

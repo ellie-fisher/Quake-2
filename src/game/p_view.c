@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -427,17 +427,18 @@ void SV_CalcBlend (edict_t *ent)
 	// add for contents
 	VectorAdd (ent->s.origin, ent->client->ps.viewoffset, vieworg);
 	contents = gi.pointcontents (vieworg);
-	if (contents & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER) )
+	if (contents & (CONTENTS_LAVA|CONTENTS_WATER) && !(contents & CONTENTS_AIRPOCKET))
 		ent->client->ps.rdflags |= RDF_UNDERWATER;
 	else
 		ent->client->ps.rdflags &= ~RDF_UNDERWATER;
 
-	if (contents & (CONTENTS_SOLID|CONTENTS_LAVA))
-		SV_AddBlend (1.0, 0.3, 0.0, 0.6, ent->client->ps.blend);
-	else if (contents & CONTENTS_SLIME)
-		SV_AddBlend (0.0, 0.1, 0.05, 0.6, ent->client->ps.blend);
-	else if (contents & CONTENTS_WATER)
-		SV_AddBlend (0.5, 0.3, 0.2, 0.4, ent->client->ps.blend);
+	if (!(contents & CONTENTS_AIRPOCKET))
+	{
+		if (contents & (CONTENTS_SOLID|CONTENTS_LAVA))
+			SV_AddBlend (1.0, 0.3, 0.0, 0.6, ent->client->ps.blend);
+		else if (contents & CONTENTS_WATER)
+			SV_AddBlend (0.3, 0.4, 0.5, 0.5, ent->client->ps.blend);
+	}
 
 	// add for powerups
 	if (ent->client->quad_framenum > level.framenum)
@@ -603,8 +604,6 @@ void P_WorldEffects (void)
 		PlayerNoise(current_player, current_player->s.origin, PNOISE_SELF);
 		if (current_player->watertype & CONTENTS_LAVA)
 			gi.sound (current_player, CHAN_BODY, gi.soundindex("player/lava_in.wav"), 1, ATTN_NORM, 0);
-		else if (current_player->watertype & CONTENTS_SLIME)
-			gi.sound (current_player, CHAN_BODY, gi.soundindex("player/watr_in.wav"), 1, ATTN_NORM, 0);
 		else if (current_player->watertype & CONTENTS_WATER)
 			gi.sound (current_player, CHAN_BODY, gi.soundindex("player/watr_in.wav"), 1, ATTN_NORM, 0);
 		current_player->flags |= FL_INWATER;
@@ -705,7 +704,7 @@ void P_WorldEffects (void)
 	//
 	// check for sizzle damage
 	//
-	if (waterlevel && (current_player->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) )
+	if (waterlevel && (current_player->watertype&(CONTENTS_LAVA)) )
 	{
 		if (current_player->watertype & CONTENTS_LAVA)
 		{
@@ -724,14 +723,6 @@ void P_WorldEffects (void)
 				T_Damage (current_player, world, world, vec3_origin, current_player->s.origin, vec3_origin, 1*waterlevel, 0, 0, MOD_LAVA);
 			else
 				T_Damage (current_player, world, world, vec3_origin, current_player->s.origin, vec3_origin, 3*waterlevel, 0, 0, MOD_LAVA);
-		}
-
-		if (current_player->watertype & CONTENTS_SLIME)
-		{
-			if (!envirosuit)
-			{	// no damage from slime with envirosuit
-				T_Damage (current_player, world, world, vec3_origin, current_player->s.origin, vec3_origin, 1*waterlevel, 0, 0, MOD_SLIME);
-			}
 		}
 	}
 }
@@ -835,7 +826,7 @@ void G_SetClientSound (edict_t *ent)
 	else
 		weap = "";
 
-	if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) )
+	if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA)) )
 		ent->s.sound = snd_fry;
 	else if (strcmp(weap, "weapon_railgun") == 0)
 		ent->s.sound = gi.soundindex("weapons/rg_hum.wav");
