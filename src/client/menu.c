@@ -3615,7 +3615,7 @@ qboolean PlayerConfig_MenuInit( void )
 
 	cvar_t *hand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 
-	static const char *handedness[] = { "right", "left", "center", 0 };
+	static const char *handedness[] = { "right", "left", 0 };
 
 	PlayerConfig_ScanDirectories();
 
